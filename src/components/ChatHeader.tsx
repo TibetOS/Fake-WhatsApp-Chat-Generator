@@ -7,17 +7,31 @@ type ChatHeaderProps = {
   phoneType: PhoneType
 }
 
-function Avatar({ name }: { name: string }) {
-  const initials = name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2)
-
+function Avatar({ size = 36 }: { size?: number }) {
   return (
-    <div className="w-9 h-9 rounded-full bg-[#dfe5e7] flex items-center justify-center flex-shrink-0">
-      <span className="text-[#8696a0] text-sm font-medium">{initials}</span>
+    <div
+      className="rounded-full bg-[#dfe5e7] flex items-center justify-center flex-shrink-0"
+      style={{ width: size, height: size }}
+    >
+      <svg
+        viewBox="0 0 212 212"
+        width={size * 0.6}
+        height={size * 0.6}
+        fill="none"
+      >
+        <path
+          d="M106 3.5C48.4 3.5 2 49.9 2 107.5c0 30.4 13 57.7 33.8 76.7C52.9 168 77.7 157 106 157s53.1 11 70.2 27.2C197 165.2 210 137.9 210 107.5 210 49.9 163.6 3.5 106 3.5z"
+          fill="#d0d0d0"
+        />
+        <path
+          d="M106 128c24.3 0 44-19.7 44-44s-19.7-44-44-44-44 19.7-44 44 19.7 44 44 44z"
+          fill="#fff"
+        />
+        <path
+          d="M106 157c-28.3 0-53.1 11-70.2 27.2C53.7 200 78.7 211.5 106 211.5s52.3-11.5 70.2-27.3C159.1 168 134.3 157 106 157z"
+          fill="#fff"
+        />
+      </svg>
     </div>
   )
 }
@@ -39,7 +53,7 @@ function AndroidHeader({
         <path d="M12 4l1.4 1.4L7.8 11H20v2H7.8l5.6 5.6L12 20l-8-8z" />
       </svg>
 
-      <Avatar name={contactName} />
+      <Avatar size={38} />
 
       <div className="flex-1 min-w-0">
         <p className="text-white text-[16px] font-normal leading-tight truncate">
@@ -72,52 +86,57 @@ function IPhoneHeader({
   contactStatus,
   darkMode,
 }: Omit<ChatHeaderProps, "phoneType">) {
-  const bgColor = darkMode ? "#1a1a1e" : "#ffffff"
+  const bgColor = darkMode ? "#1a1a1e" : "#f6f6f6"
   const textColor = darkMode ? "#ffffff" : "#000000"
   const accentColor = darkMode ? "#0a84ff" : "#007aff"
   const subtitleColor = darkMode ? "#8e8e93" : "#8e8e93"
-  const borderColor = darkMode ? "#38383a" : "#c6c6c8"
+  const borderColor = darkMode ? "#38383a" : "#d1d1d6"
 
   return (
     <div
-      className="flex items-center gap-1 px-2 py-1.5"
+      className="flex items-center px-1 py-1"
       style={{
         backgroundColor: bgColor,
-        minHeight: "52px",
+        minHeight: "56px",
         borderBottom: `0.5px solid ${borderColor}`,
       }}
     >
-      {/* Back chevron */}
-      <div className="flex items-center gap-0.5">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill={accentColor}>
+      {/* Back chevron + label */}
+      <div className="flex items-center gap-0 flex-shrink-0">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill={accentColor}>
           <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
         </svg>
-        <span className="text-[17px]" style={{ color: accentColor }}>
+        <span
+          className="text-[17px] -ml-1.5"
+          style={{ color: accentColor }}
+        >
           Back
         </span>
       </div>
 
-      {/* Center: Avatar + Name + Status */}
-      <div className="flex-1 flex flex-col items-center min-w-0">
-        <Avatar name={contactName} />
-        <p
-          className="text-[11px] font-medium leading-tight truncate mt-0.5"
-          style={{ color: textColor }}
-        >
-          {contactName}
-        </p>
-        {contactStatus && (
+      {/* Avatar + Name + Status (left-aligned, like real WhatsApp iOS) */}
+      <div className="flex items-center gap-2 flex-1 min-w-0 ml-1">
+        <Avatar size={36} />
+        <div className="min-w-0">
           <p
-            className="text-[10px] leading-tight truncate"
-            style={{ color: subtitleColor }}
+            className="text-[16px] font-semibold leading-tight truncate"
+            style={{ color: textColor }}
           >
-            {contactStatus}
+            {contactName}
           </p>
-        )}
+          {contactStatus && (
+            <p
+              className="text-[12px] leading-tight truncate"
+              style={{ color: subtitleColor }}
+            >
+              {contactStatus}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Right: Video + Call */}
-      <div className="flex items-center gap-5 mr-1">
+      <div className="flex items-center gap-5 mr-3 flex-shrink-0">
         <svg viewBox="0 0 24 24" width="22" height="22" fill={accentColor}>
           <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" />
         </svg>

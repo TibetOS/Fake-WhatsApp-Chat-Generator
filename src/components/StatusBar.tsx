@@ -50,7 +50,7 @@ function IPhoneStatusBar({ darkMode }: { darkMode: boolean }) {
     <div
       className="relative flex items-end justify-between px-6 text-white"
       style={{
-        backgroundColor: darkMode ? "#000000" : "#ffffff",
+        backgroundColor: darkMode ? "#000000" : "#f6f6f6",
         height: "54px",
         fontSize: "15px",
         paddingBottom: "4px",
