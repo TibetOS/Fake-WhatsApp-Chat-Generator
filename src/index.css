@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme {
+  --color-wa-header: #008069;
+  --color-wa-sent: #d9fdd3;
+  --color-wa-received: #ffffff;
+  --color-wa-chat-bg: #efeae2;
+  --color-wa-text: #111b21;
+  --color-wa-timestamp: #667781;
+  --color-wa-input-bg: #f0f2f5;
+
+  --color-wa-dark-header: #202c33;
+  --color-wa-dark-sent: #005c4b;
+  --color-wa-dark-received: #202c33;
+  --color-wa-dark-chat-bg: #0b141a;
+  --color-wa-dark-text: #e9edef;
+  --color-wa-dark-timestamp: #8696a0;
+  --color-wa-dark-input-bg: #2a3942;
+  --color-wa-dark-compose-bg: #1f2c34;
+
+  --color-wa-blue-check: #53bdeb;
+  --color-wa-green-accent: #25d366;
+
+  --font-family-sans: "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background-color: #f0f2f5;
+  min-height: 100vh;
+}
