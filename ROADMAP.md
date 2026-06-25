@@ -23,9 +23,9 @@ PNG via `html-to-image`.
 |---|---|---|
 | Message CRUD | Add / edit / delete / reorder | `src/App.tsx`, `src/components/ControlPanel.tsx` |
 | Per-message fields | text, sender (`me`/`them`), timestamp, status (`sent`/`delivered`/`read`) | `src/types.ts` |
-| Chat config | contact name, contact status, dark mode, phone type (iPhone/Android) | `src/types.ts`, `ControlPanel.tsx` |
-| Faithful UI | status bar, header, bubbles with tails, doodle wallpaper, input bar, check marks | `ChatPreview.tsx`, `ChatHeader.tsx`, `ChatBubble.tsx`, `StatusBar.tsx`, `CheckMark.tsx` |
-| Export | PNG at 2× pixel ratio | `App.tsx` (`handleExport`) |
+| Chat config | contact name, contact status, dark mode, phone type (iPhone/Android) | `src/types.ts`, `src/components/ControlPanel.tsx` |
+| Faithful UI | status bar, header, bubbles with tails, doodle wallpaper, input bar, check marks | `src/components/ChatPreview.tsx`, `src/components/ChatHeader.tsx`, `src/components/ChatBubble.tsx`, `src/components/StatusBar.tsx`, `src/components/CheckMark.tsx` |
+| Export | PNG at 2× pixel ratio | `src/App.tsx` (`handleExport`) |
 | Quality | Vitest + Testing Library, ESLint, TS strict-ish | `src/App.test.tsx`, `eslint.config.js` |
 
 **Architectural strengths to preserve:** no backend, no tracking, no signup — a
