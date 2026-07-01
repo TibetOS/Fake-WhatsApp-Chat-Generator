@@ -186,6 +186,29 @@ describe("reactions & replies", () => {
     expect(screen.getAllByText("Replying!").length).toBeGreaterThan(0)
   })
 
+  it("clearing reactions while editing removes the pill", () => {
+    render(<App />)
+    // Add a message with a reaction.
+    fireEvent.change(screen.getByPlaceholderText("👍 ❤️ 😂"), {
+      target: { value: "🔥" },
+    })
+    fireEvent.change(screen.getByPlaceholderText("Type your message..."), {
+      target: { value: "Hot take" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Add Message" }))
+    expect(screen.getByText("🔥")).toBeInTheDocument()
+
+    // Edit it (last in the list), clear the reactions field, save.
+    const editButtons = screen.getAllByTitle("Edit")
+    fireEvent.click(editButtons[editButtons.length - 1])
+    fireEvent.change(screen.getByPlaceholderText("👍 ❤️ 😂"), {
+      target: { value: "" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Save Changes" }))
+
+    expect(screen.queryByText("🔥")).not.toBeInTheDocument()
+  })
+
   it("hides reply and reaction controls for system messages", () => {
     render(<App />)
     expect(screen.getByPlaceholderText("👍 ❤️ 😂")).toBeInTheDocument()

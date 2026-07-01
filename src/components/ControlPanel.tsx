@@ -53,10 +53,12 @@ export function ControlPanel({
       // (e.g. after editing a system message, which has an empty time).
       timestamp: isSystem ? "" : timestamp.trim() || "10:30",
       status,
-      ...(trimmedDate ? { date: trimmedDate } : {}),
+      // Explicitly undefined when cleared so edits drop stale values even if
+      // the update handler ever switches to merge semantics.
+      date: trimmedDate || undefined,
       // System notices carry no reactions or reply quote.
-      ...(!isSystem && trimmedReactions ? { reactions: trimmedReactions } : {}),
-      ...(!isSystem && replyTo ? { replyTo } : {}),
+      reactions: (!isSystem && trimmedReactions) || undefined,
+      replyTo: (!isSystem && replyTo) || undefined,
     }
 
     if (editingId) {

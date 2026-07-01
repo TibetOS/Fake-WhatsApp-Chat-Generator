@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useRef } from "react"
+import { forwardRef, useEffect, useMemo, useRef } from "react"
 import type { ReactNode } from "react"
 import type { Message, ChatConfig } from "../types"
 import { getChatTheme } from "../theme"
@@ -181,6 +181,11 @@ export const ChatPreview = forwardRef<HTMLDivElement, ChatPreviewProps>(
     const isIPhone = config.phoneType === "iphone"
     const theme = getChatTheme(config.phoneType, config.darkMode)
     const chatBgColor = theme.chatBackground
+    // O(1) quote lookups instead of scanning messages per bubble.
+    const messageById = useMemo(
+      () => new Map(messages.map((m) => [m.id, m])),
+      [messages],
+    )
 
     useEffect(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -240,7 +245,7 @@ export const ChatPreview = forwardRef<HTMLDivElement, ChatPreviewProps>(
                 )
               }
               const quoted = item.message.replyTo
-                ? messages.find((m) => m.id === item.message.replyTo)
+                ? messageById.get(item.message.replyTo)
                 : undefined
               return (
                 <ChatBubble
