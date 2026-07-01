@@ -1,9 +1,10 @@
 import type { PhoneType } from "../types"
+import type { ChatTheme } from "../theme"
 
 type ChatHeaderProps = {
   contactName: string
   contactStatus: string
-  darkMode: boolean
+  theme: ChatTheme
   phoneType: PhoneType
 }
 
@@ -39,9 +40,9 @@ function Avatar({ size = 36 }: { size?: number }) {
 function AndroidHeader({
   contactName,
   contactStatus,
-  darkMode,
+  theme,
 }: Omit<ChatHeaderProps, "phoneType">) {
-  const bgColor = darkMode ? "#202c33" : "#008069"
+  const bgColor = theme.header.background
 
   return (
     <div
@@ -84,13 +85,13 @@ function AndroidHeader({
 function IPhoneHeader({
   contactName,
   contactStatus,
-  darkMode,
+  theme,
 }: Omit<ChatHeaderProps, "phoneType">) {
-  const bgColor = darkMode ? "#1a1a1e" : "#f6f6f6"
-  const textColor = darkMode ? "#ffffff" : "#000000"
-  const accentColor = darkMode ? "#0a84ff" : "#007aff"
-  const subtitleColor = darkMode ? "#8e8e93" : "#8e8e93"
-  const borderColor = darkMode ? "#38383a" : "#d1d1d6"
+  const bgColor = theme.header.background
+  const textColor = theme.header.text
+  const accentColor = theme.header.accent
+  const subtitleColor = theme.header.subtitle
+  const borderColor = theme.header.border
 
   return (
     <div
@@ -151,10 +152,10 @@ function IPhoneHeader({
 export function ChatHeader({
   contactName,
   contactStatus,
-  darkMode,
+  theme,
   phoneType,
 }: ChatHeaderProps) {
-  const props = { contactName, contactStatus, darkMode }
+  const props = { contactName, contactStatus, theme }
   if (phoneType === "iphone") {
     return <IPhoneHeader {...props} />
   }

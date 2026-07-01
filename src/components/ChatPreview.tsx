@@ -1,6 +1,8 @@
 import { forwardRef, useEffect, useRef } from "react"
 import type { ReactNode } from "react"
 import type { Message, ChatConfig } from "../types"
+import { getChatTheme } from "../theme"
+import type { ChatTheme } from "../theme"
 import { StatusBar } from "./StatusBar"
 import { ChatHeader } from "./ChatHeader"
 import { ChatBubble } from "./ChatBubble"
@@ -119,11 +121,11 @@ function InputBar({
 // Centered "pill" used for both date separators and system notices.
 function CenterPill({
   children,
-  darkMode,
+  theme,
   wide = false,
 }: {
   children: ReactNode
-  darkMode: boolean
+  theme: ChatTheme
   wide?: boolean
 }) {
   return (
@@ -133,8 +135,8 @@ function CenterPill({
           wide ? "max-w-[85%]" : ""
         }`}
         style={{
-          backgroundColor: darkMode ? "#182229" : "#e1f2fb",
-          color: darkMode ? "#8696a0" : "#54656f",
+          backgroundColor: theme.pill.background,
+          color: theme.pill.text,
         }}
       >
         {children}
@@ -177,7 +179,8 @@ export const ChatPreview = forwardRef<HTMLDivElement, ChatPreviewProps>(
   function ChatPreview({ messages, config }, ref) {
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const isIPhone = config.phoneType === "iphone"
-    const chatBgColor = config.darkMode ? "#0b141a" : "#efeae2"
+    const theme = getChatTheme(config.phoneType, config.darkMode)
+    const chatBgColor = theme.chatBackground
 
     useEffect(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -198,7 +201,7 @@ export const ChatPreview = forwardRef<HTMLDivElement, ChatPreviewProps>(
         }}
       >
         <StatusBar
-          darkMode={config.darkMode}
+          theme={theme}
           phoneType={config.phoneType}
           time={config.statusBarTime}
           batteryLevel={config.batteryLevel}
@@ -206,7 +209,7 @@ export const ChatPreview = forwardRef<HTMLDivElement, ChatPreviewProps>(
         <ChatHeader
           contactName={config.contactName}
           contactStatus={config.contactStatus}
-          darkMode={config.darkMode}
+          theme={theme}
           phoneType={config.phoneType}
         />
 
@@ -224,14 +227,14 @@ export const ChatPreview = forwardRef<HTMLDivElement, ChatPreviewProps>(
             {buildRenderItems(messages).map((item) => {
               if (item.kind === "divider") {
                 return (
-                  <CenterPill key={item.key} darkMode={config.darkMode}>
+                  <CenterPill key={item.key} theme={theme}>
                     {item.label}
                   </CenterPill>
                 )
               }
               if (item.kind === "system") {
                 return (
-                  <CenterPill key={item.key} darkMode={config.darkMode} wide>
+                  <CenterPill key={item.key} theme={theme} wide>
                     {item.text}
                   </CenterPill>
                 )
@@ -240,7 +243,7 @@ export const ChatPreview = forwardRef<HTMLDivElement, ChatPreviewProps>(
                 <ChatBubble
                   key={item.key}
                   message={item.message}
-                  darkMode={config.darkMode}
+                  theme={theme}
                   showTail={item.showTail}
                 />
               )

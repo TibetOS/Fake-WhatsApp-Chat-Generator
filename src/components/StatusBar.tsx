@@ -1,7 +1,8 @@
 import type { PhoneType } from "../types"
+import type { ChatTheme } from "../theme"
 
 type StatusBarProps = {
-  darkMode: boolean
+  theme: ChatTheme
   phoneType: PhoneType
   time: string
   batteryLevel: number
@@ -56,21 +57,21 @@ function BatteryIcon({ color, level }: { color: string; level: number }) {
 }
 
 function IPhoneStatusBar({
-  darkMode,
+  theme,
   time,
   batteryLevel,
 }: {
-  darkMode: boolean
+  theme: ChatTheme
   time: string
   batteryLevel: number
 }) {
-  const textColor = darkMode ? "#ffffff" : "#000000"
+  const textColor = theme.statusBar.text
 
   return (
     <div
       className="relative flex items-end justify-between px-6 text-white"
       style={{
-        backgroundColor: darkMode ? "#000000" : "#f6f6f6",
+        backgroundColor: theme.statusBar.background,
         height: "54px",
         fontSize: "15px",
         paddingBottom: "4px",
@@ -98,51 +99,47 @@ function IPhoneStatusBar({
 }
 
 function AndroidStatusBar({
-  darkMode,
+  theme,
   time,
   batteryLevel,
 }: {
-  darkMode: boolean
+  theme: ChatTheme
   time: string
   batteryLevel: number
 }) {
-  const bgColor = darkMode ? "#1a262d" : "#006b57"
+  const iconColor = theme.statusBar.text
 
   return (
     <div
       className="flex items-center justify-between px-4 text-white"
-      style={{ backgroundColor: bgColor, height: "26px", fontSize: "12px" }}
+      style={{
+        backgroundColor: theme.statusBar.background,
+        height: "26px",
+        fontSize: "12px",
+      }}
     >
       <span className="font-medium">{time}</span>
       <div className="flex items-center gap-1">
-        <SignalBars color="white" />
-        <WiFiIcon color="white" />
-        <BatteryIcon color="white" level={batteryLevel} />
+        <SignalBars color={iconColor} />
+        <WiFiIcon color={iconColor} />
+        <BatteryIcon color={iconColor} level={batteryLevel} />
       </div>
     </div>
   )
 }
 
 export function StatusBar({
-  darkMode,
+  theme,
   phoneType,
   time,
   batteryLevel,
 }: StatusBarProps) {
   if (phoneType === "iphone") {
     return (
-      <IPhoneStatusBar
-        darkMode={darkMode}
-        time={time}
-        batteryLevel={batteryLevel}
-      />
+      <IPhoneStatusBar theme={theme} time={time} batteryLevel={batteryLevel} />
     )
   }
   return (
-    <AndroidStatusBar
-      darkMode={darkMode}
-      time={time}
-      batteryLevel={batteryLevel}
-    />
+    <AndroidStatusBar theme={theme} time={time} batteryLevel={batteryLevel} />
   )
 }
