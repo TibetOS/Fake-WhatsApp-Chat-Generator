@@ -59,3 +59,34 @@ describe("App", () => {
     expect(darkModeCheckbox).toBeChecked()
   })
 })
+
+describe("device chrome (deterministic)", () => {
+  it("renders a fixed default status-bar time instead of the live clock", () => {
+    // Android is the default layout; the status bar must show the configured
+    // default ("9:41"), not the current wall-clock time, so exports reproduce.
+    render(<App />)
+    expect(screen.getByText("9:41")).toBeInTheDocument()
+  })
+
+  it("updates the previewed status-bar time from the control input", () => {
+    render(<App />)
+    const timeInput = screen.getByPlaceholderText("9:41")
+
+    fireEvent.change(timeInput, { target: { value: "3:30" } })
+
+    expect(screen.getByText("3:30")).toBeInTheDocument()
+    expect(screen.queryByText("9:41")).not.toBeInTheDocument()
+  })
+
+  it("updates the battery level from the slider", () => {
+    render(<App />)
+    const slider = screen.getByRole("slider")
+    expect(slider).toHaveValue("100")
+
+    fireEvent.change(slider, { target: { value: "42" } })
+
+    expect(slider).toHaveValue("42")
+    // Label reflects the level (text is split across nodes, so match loosely).
+    expect(screen.getByText(/Battery \(42%\)/)).toBeInTheDocument()
+  })
+})

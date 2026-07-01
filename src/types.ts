@@ -15,4 +15,7 @@ export type ChatConfig = {
   contactStatus: string
   darkMode: boolean
   phoneType: PhoneType
+  // Device status bar (kept deterministic so exports are reproducible)
+  statusBarTime: string
+  batteryLevel: number
 }

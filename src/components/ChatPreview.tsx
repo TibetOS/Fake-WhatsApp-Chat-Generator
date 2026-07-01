@@ -139,7 +139,12 @@ export const ChatPreview = forwardRef<HTMLDivElement, ChatPreviewProps>(
           background: "#000",
         }}
       >
-        <StatusBar darkMode={config.darkMode} phoneType={config.phoneType} />
+        <StatusBar
+          darkMode={config.darkMode}
+          phoneType={config.phoneType}
+          time={config.statusBarTime}
+          batteryLevel={config.batteryLevel}
+        />
         <ChatHeader
           contactName={config.contactName}
           contactStatus={config.contactStatus}
