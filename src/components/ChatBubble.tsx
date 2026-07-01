@@ -1,25 +1,22 @@
 import type { Message } from "../types"
+import type { ChatTheme } from "../theme"
 import { CheckMark } from "./CheckMark"
 
 type ChatBubbleProps = {
   message: Message
-  darkMode: boolean
+  theme: ChatTheme
   showTail: boolean
 }
 
-export function ChatBubble({ message, darkMode, showTail }: ChatBubbleProps) {
+export function ChatBubble({ message, theme, showTail }: ChatBubbleProps) {
   const isSent = message.sender === "me"
 
   const bgColor = isSent
-    ? darkMode
-      ? "#005c4b"
-      : "#d9fdd3"
-    : darkMode
-      ? "#202c33"
-      : "#ffffff"
+    ? theme.bubble.sentBackground
+    : theme.bubble.receivedBackground
 
-  const textColor = darkMode ? "#e9edef" : "#111b21"
-  const timestampColor = darkMode ? "#8696a0" : "#667781"
+  const textColor = theme.bubble.text
+  const timestampColor = theme.bubble.timestamp
 
   return (
     <div
@@ -74,7 +71,7 @@ export function ChatBubble({ message, darkMode, showTail }: ChatBubbleProps) {
             {message.timestamp}
           </span>
           {isSent && (
-            <CheckMark status={message.status} darkMode={darkMode} />
+            <CheckMark status={message.status} theme={theme} />
           )}
         </div>
       </div>

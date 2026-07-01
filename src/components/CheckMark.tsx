@@ -1,13 +1,14 @@
 import type { MessageStatus } from "../types"
+import type { ChatTheme } from "../theme"
 
 type CheckMarkProps = {
   status: MessageStatus
-  darkMode: boolean
+  theme: ChatTheme
 }
 
-export function CheckMark({ status, darkMode }: CheckMarkProps) {
-  const grayColor = darkMode ? "#8696a0" : "#667781"
-  const blueColor = "#53bdeb"
+export function CheckMark({ status, theme }: CheckMarkProps) {
+  const grayColor = theme.check.gray
+  const blueColor = theme.check.blue
   const color = status === "read" ? blueColor : grayColor
 
   if (status === "sent") {

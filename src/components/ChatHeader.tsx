@@ -1,9 +1,10 @@
 import type { PhoneType } from "../types"
+import type { ChatTheme } from "../theme"
 
 type ChatHeaderProps = {
   contactName: string
   contactStatus: string
-  darkMode: boolean
+  theme: ChatTheme
   phoneType: PhoneType
 }
 
@@ -39,9 +40,12 @@ function Avatar({ size = 36 }: { size?: number }) {
 function AndroidHeader({
   contactName,
   contactStatus,
-  darkMode,
+  theme,
 }: Omit<ChatHeaderProps, "phoneType">) {
-  const bgColor = darkMode ? "#202c33" : "#008069"
+  const bgColor = theme.header.background
+  const textColor = theme.header.text
+  const subtitleColor = theme.header.subtitle
+  const iconColor = theme.header.accent
 
   return (
     <div
@@ -49,31 +53,37 @@ function AndroidHeader({
       style={{ backgroundColor: bgColor, minHeight: "52px" }}
     >
       {/* Back arrow */}
-      <svg viewBox="0 0 24 24" width="24" height="24" fill="white">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill={iconColor}>
         <path d="M12 4l1.4 1.4L7.8 11H20v2H7.8l5.6 5.6L12 20l-8-8z" />
       </svg>
 
       <Avatar size={38} />
 
       <div className="flex-1 min-w-0">
-        <p className="text-white text-[16px] font-normal leading-tight truncate">
+        <p
+          className="text-[16px] font-normal leading-tight truncate"
+          style={{ color: textColor }}
+        >
           {contactName}
         </p>
         {contactStatus && (
-          <p className="text-[12px] leading-tight truncate text-white/70">
+          <p
+            className="text-[12px] leading-tight truncate"
+            style={{ color: subtitleColor }}
+          >
             {contactStatus}
           </p>
         )}
       </div>
 
       <div className="flex items-center gap-4 mr-1">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill={iconColor}>
           <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" />
         </svg>
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill={iconColor}>
           <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
         </svg>
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="white">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill={iconColor}>
           <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
         </svg>
       </div>
@@ -84,13 +94,13 @@ function AndroidHeader({
 function IPhoneHeader({
   contactName,
   contactStatus,
-  darkMode,
+  theme,
 }: Omit<ChatHeaderProps, "phoneType">) {
-  const bgColor = darkMode ? "#1a1a1e" : "#f6f6f6"
-  const textColor = darkMode ? "#ffffff" : "#000000"
-  const accentColor = darkMode ? "#0a84ff" : "#007aff"
-  const subtitleColor = darkMode ? "#8e8e93" : "#8e8e93"
-  const borderColor = darkMode ? "#38383a" : "#d1d1d6"
+  const bgColor = theme.header.background
+  const textColor = theme.header.text
+  const accentColor = theme.header.accent
+  const subtitleColor = theme.header.subtitle
+  const borderColor = theme.header.border
 
   return (
     <div
@@ -151,10 +161,10 @@ function IPhoneHeader({
 export function ChatHeader({
   contactName,
   contactStatus,
-  darkMode,
+  theme,
   phoneType,
 }: ChatHeaderProps) {
-  const props = { contactName, contactStatus, darkMode }
+  const props = { contactName, contactStatus, theme }
   if (phoneType === "iphone") {
     return <IPhoneHeader {...props} />
   }
