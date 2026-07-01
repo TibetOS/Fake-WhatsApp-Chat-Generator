@@ -93,14 +93,23 @@ function androidChrome(darkMode: boolean): Pick<ChatTheme, "statusBar" | "header
   }
 }
 
+// The tokens are fully static, so pre-compute all four combinations once at
+// module load. This keeps object references stable across renders (no new
+// theme object per render), avoiding needless re-renders of memoized children.
+const THEMES: Record<PhoneType, { light: ChatTheme; dark: ChatTheme }> = {
+  iphone: {
+    light: { ...surfaceTokens(false), ...iPhoneChrome(false) },
+    dark: { ...surfaceTokens(true), ...iPhoneChrome(true) },
+  },
+  android: {
+    light: { ...surfaceTokens(false), ...androidChrome(false) },
+    dark: { ...surfaceTokens(true), ...androidChrome(true) },
+  },
+}
+
 export function getChatTheme(
   phoneType: PhoneType,
   darkMode: boolean,
 ): ChatTheme {
-  const chrome =
-    phoneType === "iphone" ? iPhoneChrome(darkMode) : androidChrome(darkMode)
-  return {
-    ...surfaceTokens(darkMode),
-    ...chrome,
-  }
+  return THEMES[phoneType][darkMode ? "dark" : "light"]
 }

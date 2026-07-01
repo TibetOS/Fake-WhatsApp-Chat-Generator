@@ -111,14 +111,16 @@ function AndroidStatusBar({
 
   return (
     <div
-      className="flex items-center justify-between px-4 text-white"
+      className="flex items-center justify-between px-4"
       style={{
         backgroundColor: theme.statusBar.background,
         height: "26px",
         fontSize: "12px",
       }}
     >
-      <span className="font-medium">{time}</span>
+      <span className="font-medium" style={{ color: iconColor }}>
+        {time}
+      </span>
       <div className="flex items-center gap-1">
         <SignalBars color={iconColor} />
         <WiFiIcon color={iconColor} />
