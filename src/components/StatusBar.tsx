@@ -3,6 +3,13 @@ import type { PhoneType } from "../types"
 type StatusBarProps = {
   darkMode: boolean
   phoneType: PhoneType
+  time: string
+  batteryLevel: number
+}
+
+function clampBattery(level: number) {
+  if (Number.isNaN(level)) return 100
+  return Math.max(0, Math.min(100, level))
 }
 
 function SignalBars({ color }: { color: string }) {
@@ -24,7 +31,10 @@ function WiFiIcon({ color }: { color: string }) {
   )
 }
 
-function BatteryIcon({ color }: { color: string }) {
+function BatteryIcon({ color, level }: { color: string; level: number }) {
+  const pct = clampBattery(level)
+  // Inner fill spans up to 13px (x: 2.5 → 15.5); scale it by the level.
+  const fillWidth = (13 * pct) / 100
   return (
     <svg width="22" height="12" viewBox="0 0 22 12" fill={color}>
       <rect
@@ -37,13 +47,23 @@ function BatteryIcon({ color }: { color: string }) {
         stroke={color}
         strokeWidth="1.5"
       />
-      <rect x="2.5" y="3.5" width="13" height="5" rx="1" />
+      {fillWidth > 0 && (
+        <rect x="2.5" y="3.5" width={fillWidth} height="5" rx="1" />
+      )}
       <rect x="19" y="4" width="2" height="4" rx="0.5" />
     </svg>
   )
 }
 
-function IPhoneStatusBar({ darkMode }: { darkMode: boolean }) {
+function IPhoneStatusBar({
+  darkMode,
+  time,
+  batteryLevel,
+}: {
+  darkMode: boolean
+  time: string
+  batteryLevel: number
+}) {
   const textColor = darkMode ? "#ffffff" : "#000000"
 
   return (
@@ -58,7 +78,7 @@ function IPhoneStatusBar({ darkMode }: { darkMode: boolean }) {
     >
       {/* Time - left side */}
       <span className="font-semibold w-16" style={{ color: textColor }}>
-        9:41
+        {time}
       </span>
 
       {/* Dynamic Island */}
@@ -71,39 +91,58 @@ function IPhoneStatusBar({ darkMode }: { darkMode: boolean }) {
       <div className="flex items-center gap-1">
         <SignalBars color={textColor} />
         <WiFiIcon color={textColor} />
-        <BatteryIcon color={textColor} />
+        <BatteryIcon color={textColor} level={batteryLevel} />
       </div>
     </div>
   )
 }
 
-function AndroidStatusBar({ darkMode }: { darkMode: boolean }) {
+function AndroidStatusBar({
+  darkMode,
+  time,
+  batteryLevel,
+}: {
+  darkMode: boolean
+  time: string
+  batteryLevel: number
+}) {
   const bgColor = darkMode ? "#1a262d" : "#006b57"
-  const now = new Date()
-  const timeStr = now.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  })
 
   return (
     <div
       className="flex items-center justify-between px-4 text-white"
       style={{ backgroundColor: bgColor, height: "26px", fontSize: "12px" }}
     >
-      <span className="font-medium">{timeStr}</span>
+      <span className="font-medium">{time}</span>
       <div className="flex items-center gap-1">
         <SignalBars color="white" />
         <WiFiIcon color="white" />
-        <BatteryIcon color="white" />
+        <BatteryIcon color="white" level={batteryLevel} />
       </div>
     </div>
   )
 }
 
-export function StatusBar({ darkMode, phoneType }: StatusBarProps) {
+export function StatusBar({
+  darkMode,
+  phoneType,
+  time,
+  batteryLevel,
+}: StatusBarProps) {
   if (phoneType === "iphone") {
-    return <IPhoneStatusBar darkMode={darkMode} />
+    return (
+      <IPhoneStatusBar
+        darkMode={darkMode}
+        time={time}
+        batteryLevel={batteryLevel}
+      />
+    )
   }
-  return <AndroidStatusBar darkMode={darkMode} />
+  return (
+    <AndroidStatusBar
+      darkMode={darkMode}
+      time={time}
+      batteryLevel={batteryLevel}
+    />
+  )
 }

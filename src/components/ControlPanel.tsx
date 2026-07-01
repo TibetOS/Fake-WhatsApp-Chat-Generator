@@ -121,6 +121,40 @@ export function ControlPanel({
               className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#008069]/30 focus:border-[#008069]"
             />
           </div>
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <label className="block text-sm text-gray-600 mb-1">
+                Status Bar Time
+              </label>
+              <input
+                type="text"
+                value={config.statusBarTime}
+                onChange={(e) =>
+                  onUpdateConfig({ ...config, statusBarTime: e.target.value })
+                }
+                placeholder="9:41"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#008069]/30 focus:border-[#008069]"
+              />
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm text-gray-600 mb-1">
+                Battery ({config.batteryLevel}%)
+              </label>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={config.batteryLevel}
+                onChange={(e) =>
+                  onUpdateConfig({
+                    ...config,
+                    batteryLevel: Number(e.target.value),
+                  })
+                }
+                className="w-full h-9 accent-[#008069] cursor-pointer"
+              />
+            </div>
+          </div>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"

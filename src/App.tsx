@@ -54,6 +54,8 @@ const INITIAL_CONFIG: ChatConfig = {
   contactStatus: "online",
   darkMode: false,
   phoneType: "android",
+  statusBarTime: "9:41",
+  batteryLevel: 100,
 }
 
 function App() {
