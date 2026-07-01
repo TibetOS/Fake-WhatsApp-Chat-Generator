@@ -45,8 +45,10 @@ export function ControlPanel({
     const payload: Omit<Message, "id"> = {
       text,
       sender,
-      // System notices carry no timestamp or read receipt.
-      timestamp: isSystem ? "" : timestamp,
+      // System notices carry no timestamp or read receipt. For regular
+      // messages, fall back to a sensible default if the field was cleared
+      // (e.g. after editing a system message, which has an empty time).
+      timestamp: isSystem ? "" : timestamp.trim() || "10:30",
       status,
       ...(trimmedDate ? { date: trimmedDate } : {}),
     }

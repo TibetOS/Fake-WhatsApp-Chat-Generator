@@ -128,6 +128,17 @@ describe("date separators & system messages", () => {
     expect(screen.getAllByText("Missed voice call").length).toBeGreaterThan(0)
   })
 
+  it("falls back to a default time when a system message is edited into a regular one", () => {
+    render(<App />)
+    // The first message is the seeded system encryption notice (empty time).
+    fireEvent.click(screen.getAllByTitle("Edit")[0])
+    fireEvent.click(screen.getByRole("button", { name: "Me (Sent)" }))
+    fireEvent.click(screen.getByRole("button", { name: "Save Changes" }))
+
+    // It should render with the fallback time rather than an empty timestamp.
+    expect(screen.getAllByText("10:30").length).toBeGreaterThan(0)
+  })
+
   it("adds a date separator label via the compose form", () => {
     render(<App />)
     const dateInput = screen.getByPlaceholderText(
