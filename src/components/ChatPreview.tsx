@@ -1,4 +1,5 @@
 import { forwardRef, useEffect, useRef } from "react"
+import type { ReactNode } from "react"
 import type { Message, ChatConfig } from "../types"
 import { StatusBar } from "./StatusBar"
 import { ChatHeader } from "./ChatHeader"
@@ -115,6 +116,63 @@ function InputBar({
   )
 }
 
+// Centered "pill" used for both date separators and system notices.
+function CenterPill({
+  children,
+  darkMode,
+  wide = false,
+}: {
+  children: ReactNode
+  darkMode: boolean
+  wide?: boolean
+}) {
+  return (
+    <div className="flex justify-center my-2">
+      <span
+        className={`text-[11.5px] px-3 py-1 rounded-lg shadow-xs font-medium text-center ${
+          wide ? "max-w-[85%]" : ""
+        }`}
+        style={{
+          backgroundColor: darkMode ? "#182229" : "#e1f2fb",
+          color: darkMode ? "#8696a0" : "#54656f",
+        }}
+      >
+        {children}
+      </span>
+    </div>
+  )
+}
+
+// Build the ordered list of things to render: date dividers (inserted when a
+// message's date label changes) interleaved with messages/system notices.
+type RenderItem =
+  | { kind: "divider"; key: string; label: string }
+  | { kind: "system"; key: string; text: string }
+  | { kind: "message"; key: string; message: Message; showTail: boolean }
+
+function buildRenderItems(messages: Message[]): RenderItem[] {
+  const items: RenderItem[] = []
+  let lastDate: string | undefined
+  messages.forEach((msg, i) => {
+    let dividerShown = false
+    if (msg.date && msg.date !== lastDate) {
+      items.push({ kind: "divider", key: `divider-${msg.id}`, label: msg.date })
+      lastDate = msg.date
+      dividerShown = true
+    }
+    if (msg.sender === "system") {
+      items.push({ kind: "system", key: msg.id, text: msg.text })
+      return
+    }
+    const prev = messages[i - 1]
+    // A tail starts a new group: at the start, on sender change, or right
+    // after a date divider or system notice broke the run.
+    const showTail = dividerShown || !prev || prev.sender !== msg.sender
+    items.push({ kind: "message", key: msg.id, message: msg, showTail })
+  })
+  return items
+}
+
 export const ChatPreview = forwardRef<HTMLDivElement, ChatPreviewProps>(
   function ChatPreview({ messages, config }, ref) {
     const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -162,28 +220,28 @@ export const ChatPreview = forwardRef<HTMLDivElement, ChatPreviewProps>(
               : WALLPAPER_PATTERN_LIGHT,
           }}
         >
-          <div className="flex justify-center my-2 mb-3">
-            <span
-              className="text-[11.5px] px-3 py-1 rounded-lg shadow-xs font-medium"
-              style={{
-                backgroundColor: config.darkMode ? "#182229" : "#e1f2fb",
-                color: config.darkMode ? "#8696a0" : "#54656f",
-              }}
-            >
-              today
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-[1px]">
-            {messages.map((msg, i) => {
-              const prev = messages[i - 1]
-              const showTail = !prev || prev.sender !== msg.sender
+          <div className="flex flex-col gap-[1px] pt-1">
+            {buildRenderItems(messages).map((item) => {
+              if (item.kind === "divider") {
+                return (
+                  <CenterPill key={item.key} darkMode={config.darkMode}>
+                    {item.label}
+                  </CenterPill>
+                )
+              }
+              if (item.kind === "system") {
+                return (
+                  <CenterPill key={item.key} darkMode={config.darkMode} wide>
+                    {item.text}
+                  </CenterPill>
+                )
+              }
               return (
                 <ChatBubble
-                  key={msg.id}
-                  message={msg}
+                  key={item.key}
+                  message={item.message}
                   darkMode={config.darkMode}
-                  showTail={showTail}
+                  showTail={item.showTail}
                 />
               )
             })}

@@ -7,6 +7,14 @@ import { ControlPanel } from "./components/ControlPanel"
 const INITIAL_MESSAGES: Message[] = [
   {
     id: crypto.randomUUID(),
+    text: "🔒 Messages and calls are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them.",
+    sender: "system",
+    timestamp: "",
+    status: "read",
+    date: "Today",
+  },
+  {
+    id: crypto.randomUUID(),
     text: "Hey! How are you? 😊",
     sender: "them",
     timestamp: "09:41",

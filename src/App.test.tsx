@@ -90,3 +90,55 @@ describe("device chrome (deterministic)", () => {
     expect(screen.getByText(/Battery \(42%\)/)).toBeInTheDocument()
   })
 })
+
+describe("date separators & system messages", () => {
+  it("renders the default end-to-end encryption system notice", () => {
+    render(<App />)
+    expect(
+      screen.getAllByText(/end-to-end encrypted/i).length,
+    ).toBeGreaterThan(0)
+  })
+
+  it("renders a date separator pill from a message's date label", () => {
+    render(<App />)
+    // The seeded encryption notice carries date "Today", so a pill shows.
+    expect(screen.getAllByText("Today").length).toBeGreaterThan(0)
+  })
+
+  it("hides time and status controls when composing a system message", () => {
+    render(<App />)
+    expect(screen.getByText("Time")).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole("button", { name: "System" }))
+
+    expect(screen.queryByText("Time")).not.toBeInTheDocument()
+    expect(screen.queryByText("Status")).not.toBeInTheDocument()
+  })
+
+  it("adds a system message that appears in the preview", () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole("button", { name: "System" }))
+
+    const textarea = screen.getByPlaceholderText("Type your message...")
+    fireEvent.change(textarea, {
+      target: { value: "Missed voice call" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Add Message" }))
+
+    expect(screen.getAllByText("Missed voice call").length).toBeGreaterThan(0)
+  })
+
+  it("adds a date separator label via the compose form", () => {
+    render(<App />)
+    const dateInput = screen.getByPlaceholderText(
+      "e.g. Today, Yesterday, 12 May 2024",
+    )
+    fireEvent.change(dateInput, { target: { value: "Yesterday" } })
+
+    const textarea = screen.getByPlaceholderText("Type your message...")
+    fireEvent.change(textarea, { target: { value: "A new day" } })
+    fireEvent.click(screen.getByRole("button", { name: "Add Message" }))
+
+    expect(screen.getAllByText("Yesterday").length).toBeGreaterThan(0)
+  })
+})

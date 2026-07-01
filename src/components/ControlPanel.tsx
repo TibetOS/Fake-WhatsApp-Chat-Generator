@@ -1,5 +1,11 @@
 import { useState } from "react"
-import type { Message, MessageStatus, ChatConfig, PhoneType } from "../types"
+import type {
+  Message,
+  MessageSender,
+  MessageStatus,
+  ChatConfig,
+  PhoneType,
+} from "../types"
 
 type ControlPanelProps = {
   messages: Message[]
@@ -23,22 +29,36 @@ export function ControlPanel({
   onExport,
 }: ControlPanelProps) {
   const [text, setText] = useState("")
-  const [sender, setSender] = useState<"me" | "them">("them")
+  const [sender, setSender] = useState<MessageSender>("them")
   const [timestamp, setTimestamp] = useState("10:30")
   const [status, setStatus] = useState<MessageStatus>("read")
+  const [date, setDate] = useState("")
   const [editingId, setEditingId] = useState<string | null>(null)
+
+  const isSystem = sender === "system"
 
   const handleSubmit = (e: { preventDefault(): void }) => {
     e.preventDefault()
     if (!text.trim()) return
 
+    const trimmedDate = date.trim()
+    const payload: Omit<Message, "id"> = {
+      text,
+      sender,
+      // System notices carry no timestamp or read receipt.
+      timestamp: isSystem ? "" : timestamp,
+      status,
+      ...(trimmedDate ? { date: trimmedDate } : {}),
+    }
+
     if (editingId) {
-      onUpdateMessage(editingId, { text, sender, timestamp, status })
+      onUpdateMessage(editingId, payload)
       setEditingId(null)
     } else {
-      onAddMessage({ text, sender, timestamp, status })
+      onAddMessage(payload)
     }
     setText("")
+    setDate("")
   }
 
   const handleEdit = (msg: Message) => {
@@ -47,11 +67,13 @@ export function ControlPanel({
     setSender(msg.sender)
     setTimestamp(msg.timestamp)
     setStatus(msg.status)
+    setDate(msg.date ?? "")
   }
 
   const handleCancelEdit = () => {
     setEditingId(null)
     setText("")
+    setDate("")
   }
 
   return (
@@ -210,34 +232,65 @@ export function ControlPanel({
             >
               {config.contactName || "Contact"}
             </button>
+            <button
+              type="button"
+              onClick={() => setSender("system")}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+                isSystem
+                  ? "bg-[#e1f2fb] text-[#54656f] ring-2 ring-[#008069]"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              System
+            </button>
           </div>
 
-          <div className="flex gap-3">
-            <div className="flex-1">
-              <label className="block text-sm text-gray-600 mb-1">Time</label>
-              <input
-                type="time"
-                value={timestamp}
-                onChange={(e) => setTimestamp(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#008069]/30 focus:border-[#008069]"
-              />
-            </div>
-            {sender === "me" && (
+          {!isSystem && (
+            <div className="flex gap-3">
               <div className="flex-1">
-                <label className="block text-sm text-gray-600 mb-1">
-                  Status
-                </label>
-                <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value as MessageStatus)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#008069]/30 focus:border-[#008069] bg-white"
-                >
-                  <option value="sent">Sent (✓)</option>
-                  <option value="delivered">Delivered (✓✓)</option>
-                  <option value="read">Read (✓✓ blue)</option>
-                </select>
+                <label className="block text-sm text-gray-600 mb-1">Time</label>
+                <input
+                  type="time"
+                  value={timestamp}
+                  onChange={(e) => setTimestamp(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#008069]/30 focus:border-[#008069]"
+                />
               </div>
-            )}
+              {sender === "me" && (
+                <div className="flex-1">
+                  <label className="block text-sm text-gray-600 mb-1">
+                    Status
+                  </label>
+                  <select
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value as MessageStatus)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#008069]/30 focus:border-[#008069] bg-white"
+                  >
+                    <option value="sent">Sent (✓)</option>
+                    <option value="delivered">Delivered (✓✓)</option>
+                    <option value="read">Read (✓✓ blue)</option>
+                  </select>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">
+              Date separator{" "}
+              <span className="text-gray-400 font-normal">(optional)</span>
+            </label>
+            <input
+              type="text"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              placeholder="e.g. Today, Yesterday, 12 May 2024"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#008069]/30 focus:border-[#008069]"
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              Shows a centered date pill above this message when it differs from
+              the previous one.
+            </p>
           </div>
 
           <div className="flex gap-2">
@@ -283,15 +336,24 @@ export function ControlPanel({
                   className="w-2 h-2 rounded-full flex-shrink-0"
                   style={{
                     backgroundColor:
-                      msg.sender === "me" ? "#25d366" : "#8696a0",
+                      msg.sender === "me"
+                        ? "#25d366"
+                        : msg.sender === "system"
+                          ? "#53bdeb"
+                          : "#8696a0",
                   }}
                 />
                 {/* Message preview */}
                 <div className="flex-1 min-w-0">
                   <p className="text-gray-800 truncate">{msg.text}</p>
                   <p className="text-xs text-gray-400">
-                    {msg.sender === "me" ? "You" : config.contactName} ·{" "}
-                    {msg.timestamp}
+                    {msg.sender === "me"
+                      ? "You"
+                      : msg.sender === "system"
+                        ? "System"
+                        : config.contactName}
+                    {msg.date ? ` · ${msg.date}` : ""}
+                    {msg.timestamp ? ` · ${msg.timestamp}` : ""}
                   </p>
                 </div>
                 {/* Action buttons */}
