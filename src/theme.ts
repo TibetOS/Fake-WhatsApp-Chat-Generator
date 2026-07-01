@@ -27,6 +27,15 @@ export type ChatTheme = {
     background: string
     text: string
   }
+  quote: {
+    background: string
+    accent: string
+    text: string
+  }
+  reaction: {
+    background: string
+    border: string
+  }
   statusBar: {
     background: string
     text: string
@@ -57,6 +66,17 @@ function surfaceTokens(darkMode: boolean) {
     pill: {
       background: darkMode ? "#182229" : "#e1f2fb",
       text: darkMode ? "#8696a0" : "#54656f",
+    },
+    quote: {
+      // Translucent overlay so it works on both sent and received bubbles.
+      background: darkMode ? "rgba(0,0,0,0.24)" : "rgba(0,0,0,0.06)",
+      accent: darkMode ? "#06cf9c" : "#06846a",
+      text: darkMode ? "#8696a0" : "#667781",
+    },
+    reaction: {
+      background: darkMode ? "#202c33" : "#ffffff",
+      // Matches the chat background so the pill reads as a cutout.
+      border: darkMode ? "#0b141a" : "#efeae2",
     },
   }
 }

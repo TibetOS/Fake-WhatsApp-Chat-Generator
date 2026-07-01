@@ -239,12 +239,26 @@ export const ChatPreview = forwardRef<HTMLDivElement, ChatPreviewProps>(
                   </CenterPill>
                 )
               }
+              const quoted = item.message.replyTo
+                ? messages.find((m) => m.id === item.message.replyTo)
+                : undefined
               return (
                 <ChatBubble
                   key={item.key}
                   message={item.message}
                   theme={theme}
                   showTail={item.showTail}
+                  quote={
+                    quoted && {
+                      senderLabel:
+                        quoted.sender === "me"
+                          ? "You"
+                          : quoted.sender === "system"
+                            ? "System"
+                            : config.contactName || "Contact",
+                      text: quoted.text,
+                    }
+                  }
                 />
               )
             })}
