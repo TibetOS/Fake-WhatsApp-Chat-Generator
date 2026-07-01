@@ -153,3 +153,69 @@ describe("date separators & system messages", () => {
     expect(screen.getAllByText("Yesterday").length).toBeGreaterThan(0)
   })
 })
+
+describe("reactions & replies", () => {
+  it("adds a message with emoji reactions that render on the bubble", () => {
+    render(<App />)
+    fireEvent.change(screen.getByPlaceholderText("👍 ❤️ 😂"), {
+      target: { value: "👍❤️" },
+    })
+    fireEvent.change(screen.getByPlaceholderText("Type your message..."), {
+      target: { value: "React to this" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Add Message" }))
+
+    expect(screen.getByText("👍❤️")).toBeInTheDocument()
+  })
+
+  it("adds a reply that renders the quoted message inside the bubble", () => {
+    render(<App />)
+    // Default sender is the contact, so the only combobox is "Reply to".
+    const replySelect = screen.getByRole("combobox")
+    const options = replySelect.querySelectorAll("option")
+    // options[0] is "None"; options[1] is the first quotable message.
+    fireEvent.change(replySelect, { target: { value: options[1].value } })
+
+    fireEvent.change(screen.getByPlaceholderText("Type your message..."), {
+      target: { value: "Replying!" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Add Message" }))
+
+    // The quoted text now appears twice: original bubble + quote block.
+    expect(screen.getAllByText(/Hey! How are you/).length).toBeGreaterThan(1)
+    expect(screen.getAllByText("Replying!").length).toBeGreaterThan(0)
+  })
+
+  it("clearing reactions while editing removes the pill", () => {
+    render(<App />)
+    // Add a message with a reaction.
+    fireEvent.change(screen.getByPlaceholderText("👍 ❤️ 😂"), {
+      target: { value: "🔥" },
+    })
+    fireEvent.change(screen.getByPlaceholderText("Type your message..."), {
+      target: { value: "Hot take" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Add Message" }))
+    expect(screen.getByText("🔥")).toBeInTheDocument()
+
+    // Edit it (last in the list), clear the reactions field, save.
+    const editButtons = screen.getAllByTitle("Edit")
+    fireEvent.click(editButtons[editButtons.length - 1])
+    fireEvent.change(screen.getByPlaceholderText("👍 ❤️ 😂"), {
+      target: { value: "" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Save Changes" }))
+
+    expect(screen.queryByText("🔥")).not.toBeInTheDocument()
+  })
+
+  it("hides reply and reaction controls for system messages", () => {
+    render(<App />)
+    expect(screen.getByPlaceholderText("👍 ❤️ 😂")).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole("button", { name: "System" }))
+
+    expect(screen.queryByPlaceholderText("👍 ❤️ 😂")).not.toBeInTheDocument()
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument()
+  })
+})

@@ -2,13 +2,20 @@ import type { Message } from "../types"
 import type { ChatTheme } from "../theme"
 import { CheckMark } from "./CheckMark"
 
+// Resolved data for the message this bubble quotes (WhatsApp reply).
+export type QuoteInfo = {
+  senderLabel: string
+  text: string
+}
+
 type ChatBubbleProps = {
   message: Message
   theme: ChatTheme
   showTail: boolean
+  quote?: QuoteInfo
 }
 
-export function ChatBubble({ message, theme, showTail }: ChatBubbleProps) {
+export function ChatBubble({ message, theme, showTail, quote }: ChatBubbleProps) {
   const isSent = message.sender === "me"
 
   const bgColor = isSent
@@ -17,11 +24,13 @@ export function ChatBubble({ message, theme, showTail }: ChatBubbleProps) {
 
   const textColor = theme.bubble.text
   const timestampColor = theme.bubble.timestamp
+  const hasReactions = Boolean(message.reactions?.trim())
 
   return (
     <div
       className={`flex ${isSent ? "justify-end" : "justify-start"} px-[3%]`}
-      style={{ marginBottom: "2px" }}
+      // Leave room for the reaction pill overlapping the bubble's bottom edge.
+      style={{ marginBottom: hasReactions ? "16px" : "2px" }}
     >
       <div
         className="relative max-w-[65%] rounded-lg shadow-xs"
@@ -45,6 +54,29 @@ export function ChatBubble({ message, theme, showTail }: ChatBubbleProps) {
                 : { borderLeft: "8px solid transparent" }),
             }}
           />
+        )}
+
+        {quote && (
+          <div
+            className="rounded-md mb-1 px-2 py-1 overflow-hidden"
+            style={{
+              backgroundColor: theme.quote.background,
+              borderLeft: `4px solid ${theme.quote.accent}`,
+            }}
+          >
+            <p
+              className="text-[12.5px] font-medium leading-tight"
+              style={{ color: theme.quote.accent }}
+            >
+              {quote.senderLabel}
+            </p>
+            <p
+              className="text-[13px] leading-snug truncate"
+              style={{ color: theme.quote.text }}
+            >
+              {quote.text}
+            </p>
+          </div>
         )}
 
         <div className="relative">
@@ -74,6 +106,23 @@ export function ChatBubble({ message, theme, showTail }: ChatBubbleProps) {
             <CheckMark status={message.status} theme={theme} />
           )}
         </div>
+
+        {hasReactions && (
+          <div
+            className="absolute"
+            style={{ bottom: "-14px", [isSent ? "right" : "left"]: "4px" }}
+          >
+            <span
+              className="text-[12px] px-1.5 py-[1px] rounded-full shadow-xs inline-block whitespace-nowrap"
+              style={{
+                backgroundColor: theme.reaction.background,
+                border: `1px solid ${theme.reaction.border}`,
+              }}
+            >
+              {message.reactions}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   )

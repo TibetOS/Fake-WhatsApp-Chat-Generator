@@ -33,6 +33,8 @@ export function ControlPanel({
   const [timestamp, setTimestamp] = useState("10:30")
   const [status, setStatus] = useState<MessageStatus>("read")
   const [date, setDate] = useState("")
+  const [reactions, setReactions] = useState("")
+  const [replyTo, setReplyTo] = useState("")
   const [editingId, setEditingId] = useState<string | null>(null)
 
   const isSystem = sender === "system"
@@ -42,6 +44,7 @@ export function ControlPanel({
     if (!text.trim()) return
 
     const trimmedDate = date.trim()
+    const trimmedReactions = reactions.trim()
     const payload: Omit<Message, "id"> = {
       text,
       sender,
@@ -50,7 +53,12 @@ export function ControlPanel({
       // (e.g. after editing a system message, which has an empty time).
       timestamp: isSystem ? "" : timestamp.trim() || "10:30",
       status,
-      ...(trimmedDate ? { date: trimmedDate } : {}),
+      // Explicitly undefined when cleared so edits drop stale values even if
+      // the update handler ever switches to merge semantics.
+      date: trimmedDate || undefined,
+      // System notices carry no reactions or reply quote.
+      reactions: (!isSystem && trimmedReactions) || undefined,
+      replyTo: (!isSystem && replyTo) || undefined,
     }
 
     if (editingId) {
@@ -61,6 +69,8 @@ export function ControlPanel({
     }
     setText("")
     setDate("")
+    setReactions("")
+    setReplyTo("")
   }
 
   const handleEdit = (msg: Message) => {
@@ -70,12 +80,16 @@ export function ControlPanel({
     setTimestamp(msg.timestamp)
     setStatus(msg.status)
     setDate(msg.date ?? "")
+    setReactions(msg.reactions ?? "")
+    setReplyTo(msg.replyTo ?? "")
   }
 
   const handleCancelEdit = () => {
     setEditingId(null)
     setText("")
     setDate("")
+    setReactions("")
+    setReplyTo("")
   }
 
   return (
@@ -274,6 +288,52 @@ export function ControlPanel({
                   </select>
                 </div>
               )}
+            </div>
+          )}
+
+          {!isSystem && (
+            <div className="flex gap-3">
+              <div className="flex-1 min-w-0">
+                <label className="block text-sm text-gray-600 mb-1">
+                  Reply to{" "}
+                  <span className="text-gray-400 font-normal">(optional)</span>
+                </label>
+                <select
+                  value={replyTo}
+                  onChange={(e) => setReplyTo(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#008069]/30 focus:border-[#008069] bg-white"
+                >
+                  <option value="">None</option>
+                  {messages
+                    .filter(
+                      (m) => m.sender !== "system" && m.id !== editingId,
+                    )
+                    .map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {(m.sender === "me"
+                          ? "You"
+                          : config.contactName || "Contact") +
+                          ": " +
+                          (m.text.length > 32
+                            ? `${m.text.slice(0, 32)}…`
+                            : m.text)}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div className="flex-1 min-w-0">
+                <label className="block text-sm text-gray-600 mb-1">
+                  Reactions{" "}
+                  <span className="text-gray-400 font-normal">(emoji)</span>
+                </label>
+                <input
+                  type="text"
+                  value={reactions}
+                  onChange={(e) => setReactions(e.target.value)}
+                  placeholder="👍 ❤️ 😂"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#008069]/30 focus:border-[#008069]"
+                />
+              </div>
             </div>
           )}
 
